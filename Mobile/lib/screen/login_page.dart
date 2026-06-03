@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:tugas_akhir/constants/api_constants.dart';
 import 'package:tugas_akhir/screen/menu_page.dart';
-import 'package:tugas_akhir/screen/register_page.dart';
+
 import 'package:tugas_akhir/services/biometric_auth_service.dart';
 import 'package:tugas_akhir/theme/app_color.dart';
 
@@ -135,7 +135,8 @@ class _LoginPageState extends State<LoginPage> {
     var box = Hive.box('gudangPintarSecureBox');
     var userData = box.get(username);
     int idKurir = userData?['id'] ?? 0;
-    Get.offAll(() => MenuPage(username: username, idKurir: idKurir));
+    String role = userData?['role'] ?? 'kurir';
+    Get.offAll(() => MenuPage(username: username, idKurir: idKurir, role: role));
   }
 
   void _showErrorSnackBar(String message) {
@@ -178,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: 10),
         const Text('Gudang Pintar', 
           style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-        Text('Server: 192.168.18.106', 
+        Text('Sistem Manajemen Gudang',
           style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
       ],
     );
@@ -195,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             const SizedBox(height: 30),
             const Text('Masuk', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const Text('Akses database MySQL via XAMPP', style: TextStyle(color: AppColors.textSecondary)),
+            const Text('Masuk untuk mengelola paket', style: TextStyle(color: AppColors.textSecondary)),
             const SizedBox(height: 30),
             TextField(
               controller: _usernameController,
@@ -255,15 +256,13 @@ class _LoginPageState extends State<LoginPage> {
             ],
             
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Belum punya akun? "),
-                TextButton(
-                  onPressed: () => Get.to(() => const RegisterPage()),
-                  child: const Text("Daftar Sekarang", style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ],
+            const Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: Text(
+                'Butuh akun? Hubungi admin gudang.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
             )
           ],
         ),

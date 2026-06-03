@@ -18,6 +18,16 @@ class StatusBadge extends StatelessWidget {
         icon = Icons.warehouse_outlined;
         label = 'Di Gudang';
         break;
+      case 'Transit Antargudang':
+        color = AppColors.statusTransit;
+        icon = Icons.local_shipping_outlined;
+        label = 'Transit';
+        break;
+      case 'Di Gudang Tujuan':
+        color = AppColors.statusGudangTujuan;
+        icon = Icons.store_outlined;
+        label = 'Gudang Tujuan';
+        break;
       case 'Sedang Diantar':
         color = AppColors.statusAntar;
         icon = Icons.directions_bike;

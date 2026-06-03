@@ -8,6 +8,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
+        secondary: AppColors.accent,
         brightness: Brightness.light,
         surface: AppColors.bg,
       ),
@@ -91,13 +92,13 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.accent);
           }
-          return GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.textSecondary);
+          return GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.navInactive);
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.accent, size: 24);
           }
-          return const IconThemeData(color: AppColors.textSecondary, size: 24);
+          return const IconThemeData(color: AppColors.navInactive, size: 24);
         }),
       ),
     );

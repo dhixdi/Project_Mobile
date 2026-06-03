@@ -1,161 +1,101 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Waktu pembuatan: 04 Bulan Mei 2026 pada 18.23
--- Versi server: 10.4.32-MariaDB
--- Versi PHP: 8.2.12
+-- =====================================================
+-- 🏭 Gudang Pintar — Database Schema v2.0
+-- =====================================================
+-- Dibuat: Juni 2026
+-- Engine: MySQL 8.0+ / MariaDB 10.5+
+-- Gunakan: Import via phpMyAdmin atau CLI
+-- =====================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
-SET time_zone = "+00:00";
+SET time_zone = "+07:00";
 
+-- Hapus database lama jika ada, lalu buat baru
+DROP DATABASE IF EXISTS `db_gudangpintar`;
+CREATE DATABASE `db_gudangpintar` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `db_gudangpintar`;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- =====================================================
+-- Tabel: users
+-- Role: admin, kurir, kurir_transit
+-- Password: menggunakan password_hash (bcrypt)
+-- =====================================================
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','kurir','kurir_transit') NOT NULL DEFAULT 'kurir',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Database: `db_gudangpintar`
---
+-- =====================================================
+-- Tabel: warehouse (Gudang)
+-- =====================================================
+CREATE TABLE `warehouse` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nama_gudang` varchar(100) NOT NULL,
+  `alamat` text DEFAULT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `paket`
---
-
+-- =====================================================
+-- Tabel: paket
+-- Status: Di Gudang → Transit Antargudang → Di Gudang Tujuan → Sedang Diantar → Selesai
+-- Tipe: lokal (kirim langsung) atau antargudang (transit dulu)
+-- =====================================================
 CREATE TABLE `paket` (
-  `id` int(11) NOT NULL,
-  `no_resi` varchar(50) NOT NULL,
-  `deskripsi_barang` varchar(255) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `no_resi` varchar(30) NOT NULL,
+  `deskripsi_barang` text DEFAULT NULL,
   `nama_pengirim` varchar(100) DEFAULT NULL,
   `nama_penerima` varchar(100) NOT NULL,
   `alamat_penerima` text NOT NULL,
-  `lat_penerima` decimal(10,8) DEFAULT NULL,
-  `lng_penerima` decimal(11,8) DEFAULT NULL,
-  `id_warehouse` int(11) NOT NULL,
+  `lat_penerima` double DEFAULT NULL,
+  `lng_penerima` double DEFAULT NULL,
+  `id_warehouse` int(11) DEFAULT NULL,
+  `tipe` enum('lokal','antargudang') NOT NULL DEFAULT 'lokal',
+  `id_warehouse_tujuan` int(11) DEFAULT NULL,
   `id_kurir` int(11) DEFAULT NULL,
-  `status` enum('Di Gudang','Sedang Diantar','Selesai') DEFAULT 'Di Gudang',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id_kurir_transit` int(11) DEFAULT NULL,
+  `status` enum('Di Gudang','Transit Antargudang','Di Gudang Tujuan','Sedang Diantar','Selesai') NOT NULL DEFAULT 'Di Gudang',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_resi` (`no_resi`),
+  KEY `fk_warehouse` (`id_warehouse`),
+  KEY `fk_warehouse_tujuan` (`id_warehouse_tujuan`),
+  KEY `fk_kurir` (`id_kurir`),
+  KEY `fk_kurir_transit` (`id_kurir_transit`),
+  CONSTRAINT `fk_warehouse` FOREIGN KEY (`id_warehouse`) REFERENCES `warehouse` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_warehouse_tujuan` FOREIGN KEY (`id_warehouse_tujuan`) REFERENCES `warehouse` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_kurir` FOREIGN KEY (`id_kurir`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_kurir_transit` FOREIGN KEY (`id_kurir_transit`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data untuk tabel `paket`
---
+-- =====================================================
+-- Data Awal: Admin (username=admin, password=admin123)
+-- =====================================================
+INSERT INTO `users` (`username`, `password`, `role`) VALUES
+('admin', '$2y$10$O8ubUdZM15zYWdYCgdM5uugjOr1IZa9pUASVrzV1dSzmEHlSMspYO', 'admin');
+-- Password: admin123 (bcrypt hash generated via PHP password_hash)
 
-INSERT INTO `paket` (`id`, `no_resi`, `deskripsi_barang`, `nama_pengirim`, `nama_penerima`, `alamat_penerima`, `lat_penerima`, `lng_penerima`, `id_warehouse`, `id_kurir`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'GPX-20260501', 'Laptop Asus', 'Toko Komputer Jogja', 'Dhimas Rizky', 'Janti, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281', -7.78195374, 110.41623670, 2, 2, 'Di Gudang', '2026-05-04 16:23:04', '2026-05-04 16:23:14'),
-(2, 'GPX-20260502', 'Dokumen Kontrak', 'PT Maju Mundur', 'Andiya', 'Jl Kaliurang Km 5, Caturtunggal, Kabupaten Sleman, Daerah Istimewa Yogyakarta', -7.75650000, 110.38230000, 2, 2, 'Sedang Diantar', '2026-05-04 16:23:04', '2026-05-04 16:23:14'),
-(3, 'GPX-20260503', 'Pakaian', 'Toko Baju Online', 'Sekar', 'Bangunharjo, Kabupaten Bantul, Daerah Istimewa Yogyakarta', -7.85900000, 110.36300000, 3, 2, 'Selesai', '2026-05-04 16:23:04', '2026-05-04 16:23:14');
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('admin','kurir') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `users`
---
-
-INSERT INTO `users` (`id`, `username`, `password`, `role`) VALUES
-(1, 'admin_siti', '827ccb0eea8a706c4c34a16891f84e7b', 'admin'),
-(2, 'kurir_budi', '827ccb0eea8a706c4c34a16891f84e7b', 'kurir');
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `warehouse`
---
-
-CREATE TABLE `warehouse` (
-  `id` int(11) NOT NULL,
-  `nama_gudang` varchar(100) NOT NULL,
-  `alamat` text NOT NULL,
-  `latitude` decimal(10,8) NOT NULL,
-  `longitude` decimal(11,8) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `warehouse`
---
-
+-- =====================================================
+-- Data Awal: Warehouse
+-- =====================================================
 INSERT INTO `warehouse` (`id`, `nama_gudang`, `alamat`, `latitude`, `longitude`) VALUES
-(1, 'Gudang Pusat Yogyakarta', 'Jl. Doktor Sutomo No.26, Bausasran, Kec. Danurejan, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55225', -7.79360762, 110.37760010),
-(2, 'Gudang Hub Banguntapan', 'Sorowajan, Banguntapan, Kec. Banguntapan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55198', -7.81285203, 110.40998188),
-(3, 'Gudang Sortir Sleman', 'Jl. Tasura, Jenengan, Maguwoharjo, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281', -7.76310618, 110.42228992);
+(1, 'Gudang Pusat Yogyakarta', 'Jl. Malioboro No. 52, Yogyakarta', -7.7928, 110.3608),
+(2, 'Gudang Hub Banguntapan', 'Jl. Ringroad Selatan, Banguntapan, Bantul', -7.8252, 110.4103),
+(3, 'Gudang Sortir Sleman', 'Jl. Kaliurang Km 12, Sleman', -7.7065, 110.3930);
 
---
--- Indexes for dumped tables
---
+-- =====================================================
+-- Data Contoh: Paket (opsional, bisa dihapus)
+-- =====================================================
+INSERT INTO `paket` (`no_resi`, `deskripsi_barang`, `nama_pengirim`, `nama_penerima`, `alamat_penerima`, `lat_penerima`, `lng_penerima`, `id_warehouse`, `tipe`, `status`) VALUES
+('GPX-20260601-0001', 'Laptop ASUS ROG', 'Toko Komputer Jaya', 'Budi Santoso', 'Jl. Affandi No. 12, Yogyakarta', -7.7713, 110.3862, 1, 'lokal', 'Di Gudang'),
+('GPX-20260601-0002', 'Sepatu Nike Air Max', 'Sneakers ID', 'Rina Wati', 'Jl. Parangtritis Km 5, Bantul', -7.8563, 110.3521, 1, 'lokal', 'Sedang Diantar'),
+('GPX-20260601-0003', 'Buku Kuliah Semester 6', 'Gramedia Yogya', 'Ahmad Fauzi', 'Jl. Gejayan No. 45, Yogyakarta', -7.7752, 110.3876, 2, 'antargudang', 'Di Gudang');
 
---
--- Indeks untuk tabel `paket`
---
-ALTER TABLE `paket`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `no_resi` (`no_resi`),
-  ADD KEY `id_warehouse` (`id_warehouse`),
-  ADD KEY `fk_kurir` (`id_kurir`);
-
---
--- Indeks untuk tabel `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
-
---
--- Indeks untuk tabel `warehouse`
---
-ALTER TABLE `warehouse`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT untuk tabel yang dibuang
---
-
---
--- AUTO_INCREMENT untuk tabel `paket`
---
-ALTER TABLE `paket`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT untuk tabel `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT untuk tabel `warehouse`
---
-ALTER TABLE `warehouse`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
---
-
---
--- Ketidakleluasaan untuk tabel `paket`
---
-ALTER TABLE `paket`
-  ADD CONSTRAINT `fk_kurir` FOREIGN KEY (`id_kurir`) REFERENCES `users` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `paket_ibfk_1` FOREIGN KEY (`id_warehouse`) REFERENCES `warehouse` (`id`) ON DELETE CASCADE;
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
