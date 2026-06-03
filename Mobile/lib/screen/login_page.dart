@@ -27,7 +27,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLoading = false;
-  bool _isLoginFailed = false;
   bool _obscurePassword = true;
   bool _isBiometricSupported = false;
   bool _isAuthenticatingBiometric = false;
@@ -93,7 +92,6 @@ class _LoginPageState extends State<LoginPage> {
         if (!mounted) return;
         _goToMenuPage(username);
       } else {
-        setState(() => _isLoginFailed = true);
         _showErrorSnackBar(data['message']);
       }
     } catch (e) {
@@ -181,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
         const Text('Gudang Pintar', 
           style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
         Text('Server: 192.168.18.106', 
-          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
       ],
     );
   }

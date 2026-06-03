@@ -28,7 +28,6 @@ class BiometricAuthService {
   /// Jalankan proses autentikasi biometrik dengan UI native.
   Future<bool> authenticate({required String reason}) async {
     try {
-      // Menghapus stickyAuth dan hanya menggunakan parameter dasar yang pasti didukung
       return await _localAuth.authenticate(
         localizedReason: reason,
         biometricOnly: false, // false agar sistem memperbolehkan fallback PIN/Pola

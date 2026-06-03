@@ -15,7 +15,6 @@ class MiniGamePage extends StatefulWidget {
 class _MiniGamePageState extends State<MiniGamePage> {
   // Game state
   bool _isPlaying = false;
-  bool _isGameOver = false;
   int _score = 0;
   int _lives = 3;
   int _timeLeft = 45;
@@ -47,7 +46,6 @@ class _MiniGamePageState extends State<MiniGamePage> {
   void _startGame() {
     setState(() {
       _isPlaying = true;
-      _isGameOver = false;
       _score = 0;
       _lives = 3;
       _timeLeft = 45;
@@ -133,7 +131,6 @@ class _MiniGamePageState extends State<MiniGamePage> {
 
   void _gameOver(String reason) {
     _isPlaying = false;
-    _isGameOver = true;
     _stopSensorsAndTimers();
 
     showDialog(

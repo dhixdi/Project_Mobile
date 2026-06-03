@@ -75,7 +75,7 @@ class NavigasiPage extends StatelessWidget {
                         ],
                         strokeWidth: 3,
                         color: AppColors.accent,
-                        isDotted: true,
+                        pattern: StrokePattern.dotted(),
                       ),
                     ],
                   ),

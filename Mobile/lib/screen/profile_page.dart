@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tugas_akhir/screen/login_page.dart';
@@ -36,10 +37,22 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               child: Column(children: [
-                const CircleAvatar(
-                  radius: 48,
-                  backgroundImage: NetworkImage(
-                    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                CachedNetworkImage(
+                  imageUrl:
+                      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                    radius: 48,
+                    backgroundImage: imageProvider,
+                  ),
+                  placeholder: (context, url) => const CircleAvatar(
+                    radius: 48,
+                    backgroundColor: AppColors.border,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) => const CircleAvatar(
+                    radius: 48,
+                    backgroundColor: AppColors.border,
+                    child: Icon(Icons.person, size: 48, color: AppColors.textSecondary),
                   ),
                 ),
                 const SizedBox(height: 14),
