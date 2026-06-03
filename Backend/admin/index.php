@@ -163,9 +163,9 @@ $admin_username = htmlspecialchars($_SESSION['admin_username']);
                             <label class="block text-sm font-semibold text-slate-700 mb-1">Gudang Asal</label>
                             <select id="id_warehouse"
                                     class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="1">Gudang Surabaya</option>
-                                <option value="2">Gudang Sidoarjo</option>
-                                <option value="3">Gudang Gresik</option>
+                                <option value="1">Gudang Pusat Yogyakarta</option>
+                                <option value="2">Gudang Hub Banguntapan</option>
+                                <option value="3">Gudang Sortir Sleman</option>
                             </select>
                         </div>
                         <!-- Tipe -->
@@ -182,9 +182,9 @@ $admin_username = htmlspecialchars($_SESSION['admin_username']);
                             <label class="block text-sm font-semibold text-slate-700 mb-1">Gudang Tujuan</label>
                             <select id="id_warehouse_tujuan"
                                     class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="1">Gudang Surabaya</option>
-                                <option value="2">Gudang Sidoarjo</option>
-                                <option value="3">Gudang Gresik</option>
+                                <option value="1">Gudang Pusat Yogyakarta</option>
+                                <option value="2">Gudang Hub Banguntapan</option>
+                                <option value="3">Gudang Sortir Sleman</option>
                             </select>
                         </div>
                         <!-- Kurir -->
@@ -342,7 +342,7 @@ $admin_username = htmlspecialchars($_SESSION['admin_username']);
                 const res = await fetch(API_BASE + '/generate_resi.php');
                 const data = await res.json();
                 if (data.status === 'success') {
-                    document.getElementById('no_resi').value = data.resi;
+                    document.getElementById('no_resi').value = data.no_resi;
                 }
             } catch (e) {
                 alert('Gagal generate resi: ' + e.message);
@@ -354,12 +354,12 @@ $admin_username = htmlspecialchars($_SESSION['admin_username']);
             const alamat = document.getElementById('alamat_penerima').value.trim();
             if (!alamat) { alert('Masukkan alamat terlebih dahulu'); return; }
             try {
-                const res = await fetch(API_BASE + '/geocode.php?alamat=' + encodeURIComponent(alamat));
+                const res = await fetch(API_BASE + '/geocode.php?address=' + encodeURIComponent(alamat));
                 const data = await res.json();
                 if (data.status === 'success') {
                     document.getElementById('lat_penerima').value = data.lat;
                     document.getElementById('lng_penerima').value = data.lng;
-                    document.getElementById('geocode-text').textContent = '✅ Ditemukan: ' + data.display_name;
+                    document.getElementById('geocode-text').textContent = '✅ Ditemukan: ' + data.alamat_formatted;
                     document.getElementById('geocode-result').classList.remove('hidden');
                 } else {
                     alert('Geocode gagal: ' + (data.message || 'Alamat tidak ditemukan'));
@@ -521,7 +521,7 @@ $admin_username = htmlspecialchars($_SESSION['admin_username']);
         async function assignTransit(id, resi) {
             const kurirTransitId = prompt(`Masukkan ID Kurir Transit untuk paket ${resi}:`);
             if (!kurirTransitId) return;
-            const gudangTujuan = prompt('Masukkan ID Gudang Tujuan (1=Surabaya, 2=Sidoarjo, 3=Gresik):');
+            const gudangTujuan = prompt('Masukkan ID Gudang Tujuan (1=Pusat Yogyakarta, 2=Hub Banguntapan, 3=Sortir Sleman):');
             if (!gudangTujuan) return;
             try {
                 const res = await fetch(API_BASE + '/assign_kurir_transit.php', {

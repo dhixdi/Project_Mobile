@@ -1,17 +1,25 @@
 <?php
 include 'koneksi.php';
-$no_resi = $_POST['no_resi'] ?? '';
-$deskripsi = $_POST['deskripsi_barang'] ?? '';
-$nama_pengirim = $_POST['nama_pengirim'] ?? '';
-$nama_penerima = $_POST['nama_penerima'] ?? '';
-$alamat_penerima = $_POST['alamat_penerima'] ?? '';
-$lat = $_POST['lat_penerima'] ?? null;
-$lng = $_POST['lng_penerima'] ?? null;
-$id_warehouse = $_POST['id_warehouse'] ?? 1;
-$id_kurir = !empty($_POST['id_kurir']) ? $_POST['id_kurir'] : null;
-$tipe = $_POST['tipe'] ?? 'lokal';
-$id_warehouse_tujuan = !empty($_POST['id_warehouse_tujuan']) ? $_POST['id_warehouse_tujuan'] : null;
-$id_kurir_transit = !empty($_POST['id_kurir_transit']) ? $_POST['id_kurir_transit'] : null;
+
+// Support both FormData (from Flutter) and JSON (from Admin panel)
+$input = $_POST;
+if (empty($input) || !isset($input['no_resi'])) {
+    $json = json_decode(file_get_contents('php://input'), true);
+    if ($json) $input = $json;
+}
+
+$no_resi = $input['no_resi'] ?? '';
+$deskripsi = $input['deskripsi_barang'] ?? '';
+$nama_pengirim = $input['nama_pengirim'] ?? '';
+$nama_penerima = $input['nama_penerima'] ?? '';
+$alamat_penerima = $input['alamat_penerima'] ?? '';
+$lat = !empty($input['lat_penerima']) ? $input['lat_penerima'] : null;
+$lng = !empty($input['lng_penerima']) ? $input['lng_penerima'] : null;
+$id_warehouse = $input['id_warehouse'] ?? 1;
+$id_kurir = !empty($input['id_kurir']) ? $input['id_kurir'] : null;
+$tipe = $input['tipe'] ?? 'lokal';
+$id_warehouse_tujuan = !empty($input['id_warehouse_tujuan']) ? $input['id_warehouse_tujuan'] : null;
+$id_kurir_transit = !empty($input['id_kurir_transit']) ? $input['id_kurir_transit'] : null;
 
 if (empty($no_resi) || empty($nama_penerima) || empty($alamat_penerima)) {
     echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);

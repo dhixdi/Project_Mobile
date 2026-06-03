@@ -1,6 +1,6 @@
 <?php
 include 'koneksi.php';
-$GEOCODING_API_KEY = getenv('GEOCODING_API_KEY') ?: 'MASUKKAN_API_KEY_KAMU';
+$GEOCODING_API_KEY = getenv('GEOCODING_API_KEY') ?: 'AIzaSyClLJ_2VxaMYtb0j03PGqP4tQV-srciKKs';
 $address = $_GET['address'] ?? '';
 if (empty($address)) {
     echo json_encode(['status' => 'error', 'message' => 'Alamat kosong']);
